@@ -1,0 +1,1 @@
+This is the branch you actually should use if you are cloning the repo. This way you can actually fork the repo entirely and keep main as an empty clean slate
