@@ -1,5 +1,4 @@
 #pragma once
-#include "../reshade/reshade.hpp"
 #include <cstdint>
 #include <wrl/client.h>
 #include "filesystem"

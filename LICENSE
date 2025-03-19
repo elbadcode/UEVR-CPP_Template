@@ -1,8 +1,8 @@
-This license governs the files in this directory ("include"), its subdirectories, and is separate from the license for the rest of the UEVR codebase.
+This license governs all files in this repository that originated from the UEVR repository but are licensed separately from the rest of the code. Note that mention of specific subdirectories has been removed from the original license text for the sake of brevity as the licenses were otherwise identical
 
 The MIT License
 
-Copyright (c) 2023 praydog
+Copyright (c) 2023-2025 praydog
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
