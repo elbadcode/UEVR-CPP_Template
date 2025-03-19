@@ -1,1 +1,3 @@
-This is the branch you actually should use if you are cloning the repo. This way you can actually fork the repo entirely and keep main as an empty clean slate
+This is the branch you actually should use if you are cloning the repo. This way you can actually fork the repo entirely and keep main as an empty clean slate. Main does have the example plugin from praydog. For now if you want imgui/d3d features you must use that. I'm going to submit a pull request to try to get some imgui features exposed in the api, if its not accepted I'll make my own imgui api framework that can be used alongside uevr, no big deal
+
+You need to setup the project for building on your own for now, but keep in mind plugin.cpp does NOT have to be your Main, its just your way of interacting with the UEVR API. Make it a totally empty stub aside from the g_initialize_plugin call if you want. The idea is that this can be pulled from commandline into an already existing project. 
