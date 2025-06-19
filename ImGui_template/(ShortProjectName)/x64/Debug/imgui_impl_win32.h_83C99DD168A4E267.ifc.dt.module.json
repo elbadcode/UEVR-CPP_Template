@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imgui_impl_win32.obj",
+            "outputs": [
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imgui_impl_win32.h_83C99DD168A4E267.ifc.dt.module.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imgui_impl_win32.h_83C99DD168A4E267.ifc.dt.d.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imgui_impl_win32.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "F:\\dev\\ImGui_template\\renderlib\\uevr_imgui\\imgui_impl_win32.h",
+                    "source-path": "f:\\dev\\imgui_template\\renderlib\\uevr_imgui\\imgui_impl_win32.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

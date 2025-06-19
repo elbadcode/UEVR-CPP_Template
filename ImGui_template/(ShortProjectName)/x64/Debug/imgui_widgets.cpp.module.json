@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "F:\\dev\\ImGui_template\\\\(ShortProjectName)\\x64\\Debug\\imgui_widgets.obj",
+            "outputs": [
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\vc143.pdb",
+                "F:\\dev\\ImGui_template\\\\(ShortProjectName)\\x64\\Debug\\"
+            ],
+            "requires": []
+        }
+    ]
+}

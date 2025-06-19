@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\API.obj",
+            "outputs": [
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\API.hpp_8C0D72A0CB50332E.ifc.dt.module.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\API.hpp_8C0D72A0CB50332E.ifc.dt.d.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\API.hpp.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "F:\\dev\\ImGui_template\\UEVR\\API.hpp",
+                    "source-path": "f:\\dev\\imgui_template\\uevr\\api.hpp",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\shared.obj",
+            "outputs": [
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\shared.hpp_4986394D32997E8C.ifc.dt.module.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\shared.hpp_4986394D32997E8C.ifc.dt.d.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\shared.hpp.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "F:\\dev\\ImGui_template\\renderlib\\rendering\\shared.hpp",
+                    "source-path": "f:\\dev\\imgui_template\\renderlib\\rendering\\shared.hpp",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

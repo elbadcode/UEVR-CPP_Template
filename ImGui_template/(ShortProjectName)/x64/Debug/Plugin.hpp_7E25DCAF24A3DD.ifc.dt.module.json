@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\Plugin.obj",
+            "outputs": [
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\Plugin.hpp_7E25DCAF24A3DD.ifc.dt.module.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\Plugin.hpp_7E25DCAF24A3DD.ifc.dt.d.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\Plugin.hpp.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "F:\\dev\\ImGui_template\\UEVR\\Plugin.hpp",
+                    "source-path": "f:\\dev\\imgui_template\\uevr\\plugin.hpp",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

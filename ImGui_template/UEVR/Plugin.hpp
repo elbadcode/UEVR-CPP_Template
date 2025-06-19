@@ -30,51 +30,91 @@ SOFTWARE.
 
 #include <windows.h>
 #include <Xinput.h>
-
 #include <d3d11.h>
 #include <d3d12.h>
 
 #include "API.hpp"
 
+
 namespace uevr {
-class Plugin;
+    class Plugin;
 
-namespace detail {
-    static inline ::uevr::Plugin* g_plugin{nullptr};
-}
+    namespace detail {
+        static inline ::uevr::Plugin* g_plugin{ nullptr };
+    }
 
-class Plugin {
-public:
-    Plugin() { detail::g_plugin = this; }
+    class Plugin {
+    public:
+        Plugin() { detail::g_plugin = this; }
 
-    virtual ~Plugin() = default;
+        virtual ~Plugin() = default;
 
-    // Main plugin callbacks
-    virtual void on_dllmain() {}
-    virtual void on_initialize() {}
-    virtual void on_present() {}
-    virtual void on_post_render_vr_framework_dx11(ID3D11DeviceContext* context, ID3D11Texture2D* texture, ID3D11RenderTargetView* rtv) {}
-    virtual void on_post_render_vr_framework_dx12(ID3D12GraphicsCommandList* command_list, ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE* rtv) {}
-    virtual void on_device_reset() {}
-    virtual bool on_message(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) { return true; }
-    virtual void on_xinput_get_state(uint32_t* retval, uint32_t user_index, XINPUT_STATE* state) {}
-    virtual void on_xinput_set_state(uint32_t* retval, uint32_t user_index, XINPUT_VIBRATION* vibration) {}
+        // Main plugin callbacks
+        virtual void on_dllmain(HMODULE hmod) {}
+        virtual void on_detach(HMODULE hmod) {}
+        virtual void on_initialize() {}
+        virtual void on_present() {}
+        virtual void on_post_render_vr_framework_dx11(ID3D11DeviceContext* context, ID3D11Texture2D* texture, ID3D11RenderTargetView* rtv) {}
+        virtual void on_post_render_vr_framework_dx12(ID3D12GraphicsCommandList* command_list, ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE* rtv) {}
+        virtual void on_device_reset() {}
+        virtual bool on_message(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) { return true; }
+        virtual void on_xinput_get_state(uint32_t* retval, uint32_t user_index, XINPUT_STATE* state) {}
+        virtual void on_xinput_set_state(uint32_t* retval, uint32_t user_index, XINPUT_VIBRATION* vibration) {}
 
-    // Game/Engine callbacks
-    virtual void on_pre_engine_tick(API::UGameEngine* engine, float delta) {}
-    virtual void on_post_engine_tick(API::UGameEngine* engine, float delta) {}
-    virtual void on_pre_slate_draw_window(UEVR_FSlateRHIRendererHandle renderer, UEVR_FViewportInfoHandle viewport_info) {}
-    virtual void on_post_slate_draw_window(UEVR_FSlateRHIRendererHandle renderer, UEVR_FViewportInfoHandle viewport_info) {}
-    virtual void on_pre_calculate_stereo_view_offset(UEVR_StereoRenderingDeviceHandle, int view_index, float world_to_meters, 
-                                                     UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {};
-    virtual void on_post_calculate_stereo_view_offset(UEVR_StereoRenderingDeviceHandle, int view_index, float world_to_meters, 
-                                                      UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {};
+        // Game/Engine callbacks
+        virtual void on_pre_engine_tick(API::UGameEngine* engine, float delta) {}
+        virtual void on_post_engine_tick(API::UGameEngine* engine, float delta) {}
+        virtual void on_pre_slate_draw_window(UEVR_FSlateRHIRendererHandle renderer, UEVR_FViewportInfoHandle viewport_info) {}
+        virtual void on_post_slate_draw_window(UEVR_FSlateRHIRendererHandle renderer, UEVR_FViewportInfoHandle viewport_info) {}
+        virtual void on_pre_calculate_stereo_view_offset(UEVR_StereoRenderingDeviceHandle, int view_index, float world_to_meters,
+            UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {
+        };
+        virtual void on_post_calculate_stereo_view_offset(UEVR_StereoRenderingDeviceHandle, int view_index, float world_to_meters,
+            UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {
+        };
 
-    virtual void on_pre_viewport_client_draw(UEVR_UGameViewportClientHandle viewport_client, UEVR_FViewportHandle viewport, UEVR_FCanvasHandle) {}
-    virtual void on_post_viewport_client_draw(UEVR_UGameViewportClientHandle viewport_client, UEVR_FViewportHandle viewport, UEVR_FCanvasHandle) {}
+        virtual void on_pre_viewport_client_draw(UEVR_UGameViewportClientHandle viewport_client, UEVR_FViewportHandle viewport, UEVR_FCanvasHandle) {}
+        virtual void on_post_viewport_client_draw(UEVR_UGameViewportClientHandle viewport_client, UEVR_FViewportHandle viewport, UEVR_FCanvasHandle) {}
 
-protected:
-};
+        virtual void on_custom_event(const char* event_name, const char* event_data) {}
+
+        virtual void dispatch_lua_event(const char* event_name, const char* event_data) {}
+        // Optional: Method to draw all registered controls (called in on_frame or similar)
+        virtual void on_draw_ui() {}
+
+        // Honestly you can get away with only using wstring most of the time
+        // And when you can't, you can often use std::filesystem::path which seems to auto handle it
+        // But it doesn't hurt to have these available
+        std::wstring widen(const std::string& s)
+        {
+            std::wstring temp(s.length(), L' ');
+            std::copy(s.begin(), s.end(), temp.begin());
+            return temp;
+        }
+
+        std::string narrow(const std::wstring& s)
+        {
+            std::string temp(s.length(), ' ');
+            std::copy(s.begin(), s.end(), temp.begin());
+            return temp;
+        }
+
+
+
+        // I'm not going to fill out the rest of the kismet libraries. I don't think its a problem to define it in a header but no point if they're not being used
+        // params will be a pointer to a custom struct which must be crafted per function
+        // perhaps with a scripting language we could construct something dynamic to fit every case but I'm not enough of a hero to try it in C++ right now
+        // construct your struct with empty uobject references and correct types matching what's seen in the sdk dump
+        // then assign the values individually with api functions
+        void k2_sys(std::wstring function, void* params) {
+            static auto kismet_system_library = API::get()->find_uobject<API::UClass>(L"Class /Script/Engine.KismetSystemLibrary")->get_class_default_object();
+            kismet_system_library->call_function(function, &params);
+        }
+
+
+    protected:
+    protected:
+    };
 }
 
 extern "C" __declspec(dllexport) void uevr_plugin_required_version(UEVR_PluginVersion* version) {
@@ -92,72 +132,75 @@ extern "C" __declspec(dllexport) bool uevr_plugin_initialize(const UEVR_PluginIn
 
     callbacks->on_device_reset([]() {
         uevr::detail::g_plugin->on_device_reset();
-    });
+        });
 
     callbacks->on_present([]() {
         uevr::detail::g_plugin->on_present();
-    });
+        });
 
     callbacks->on_post_render_vr_framework_dx11([](void* context, void* texture, void* rtv) {
         uevr::detail::g_plugin->on_post_render_vr_framework_dx11((ID3D11DeviceContext*)context, (ID3D11Texture2D*)texture, (ID3D11RenderTargetView*)rtv);
-    });
+        });
 
     callbacks->on_post_render_vr_framework_dx12([](void* command_list, void* rt, void* rtv) {
         uevr::detail::g_plugin->on_post_render_vr_framework_dx12((ID3D12GraphicsCommandList*)command_list, (ID3D12Resource*)rt, (D3D12_CPU_DESCRIPTOR_HANDLE*)rtv);
-    });
+        });
 
     callbacks->on_message([](void* hwnd, unsigned int msg, unsigned long long wparam, long long lparam) {
         return uevr::detail::g_plugin->on_message((HWND)hwnd, msg, wparam, lparam);
-    });
+        });
 
     callbacks->on_xinput_get_state([](unsigned int* retval, unsigned int user_index, void* state) {
         uevr::detail::g_plugin->on_xinput_get_state(retval, user_index, (XINPUT_STATE*)state);
-    });
+        });
 
     callbacks->on_xinput_set_state([](unsigned int* retval, unsigned int user_index, void* vibration) {
         uevr::detail::g_plugin->on_xinput_set_state(retval, user_index, (XINPUT_VIBRATION*)vibration);
-    });
-
+        });
     sdk_callbacks->on_pre_engine_tick([](UEVR_UGameEngineHandle engine, float delta) {
         uevr::detail::g_plugin->on_pre_engine_tick((uevr::API::UGameEngine*)engine, delta);
-    });
+        });
 
     sdk_callbacks->on_post_engine_tick([](UEVR_UGameEngineHandle engine, float delta) {
         uevr::detail::g_plugin->on_post_engine_tick((uevr::API::UGameEngine*)engine, delta);
-    });
+        });
 
     sdk_callbacks->on_pre_slate_draw_window_render_thread([](UEVR_FSlateRHIRendererHandle renderer, UEVR_FViewportInfoHandle viewport_info) {
         uevr::detail::g_plugin->on_pre_slate_draw_window(renderer, viewport_info);
-    });
+        });
 
     sdk_callbacks->on_post_slate_draw_window_render_thread([](UEVR_FSlateRHIRendererHandle renderer, UEVR_FViewportInfoHandle viewport_info) {
         uevr::detail::g_plugin->on_post_slate_draw_window(renderer, viewport_info);
-    });
+        });
 
-    sdk_callbacks->on_pre_calculate_stereo_view_offset([](UEVR_StereoRenderingDeviceHandle device, int view_index, float world_to_meters, 
-                                                          UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {
-        uevr::detail::g_plugin->on_pre_calculate_stereo_view_offset(device, view_index, world_to_meters, position, rotation, is_double);
-    });
+    sdk_callbacks->on_pre_calculate_stereo_view_offset([](UEVR_StereoRenderingDeviceHandle device, int view_index, float world_to_meters,
+        UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {
+            uevr::detail::g_plugin->on_pre_calculate_stereo_view_offset(device, view_index, world_to_meters, position, rotation, is_double);
+        });
 
-    sdk_callbacks->on_post_calculate_stereo_view_offset([](UEVR_StereoRenderingDeviceHandle device, int view_index, float world_to_meters, 
-                                                           UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {
-        uevr::detail::g_plugin->on_post_calculate_stereo_view_offset(device, view_index, world_to_meters, position, rotation, is_double);
-    });
+    sdk_callbacks->on_post_calculate_stereo_view_offset([](UEVR_StereoRenderingDeviceHandle device, int view_index, float world_to_meters,
+        UEVR_Vector3f* position, UEVR_Rotatorf* rotation, bool is_double) {
+            uevr::detail::g_plugin->on_post_calculate_stereo_view_offset(device, view_index, world_to_meters, position, rotation, is_double);
+        });
 
     sdk_callbacks->on_pre_viewport_client_draw([](UEVR_UGameViewportClientHandle viewport_client, UEVR_FViewportHandle viewport, UEVR_FCanvasHandle canvas) {
         uevr::detail::g_plugin->on_pre_viewport_client_draw(viewport_client, viewport, canvas);
-    });
+        });
 
     sdk_callbacks->on_post_viewport_client_draw([](UEVR_UGameViewportClientHandle viewport_client, UEVR_FViewportHandle viewport, UEVR_FCanvasHandle canvas) {
         uevr::detail::g_plugin->on_post_viewport_client_draw(viewport_client, viewport, canvas);
-    });
+        });
 
     return true;
 }
 
-BOOL APIENTRY DllMain(HANDLE handle, DWORD reason, LPVOID reserved) {
+BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_ATTACH) {
-        uevr::detail::g_plugin->on_dllmain();
+        uevr::detail::g_plugin->on_dllmain(hmod);
+    }
+
+    if (reason == DLL_PROCESS_DETACH) {
+        uevr::detail::g_plugin->on_detach(hmod);
     }
 
     return TRUE;

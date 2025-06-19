@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include <windows.h>
 #include <Xinput.h>
-
 #include <d3d11.h>
 #include <d3d12.h>
 
@@ -98,6 +97,18 @@ namespace uevr {
             std::string temp(s.length(), ' ');
             std::copy(s.begin(), s.end(), temp.begin());
             return temp;
+        }
+
+
+
+        // I'm not going to fill out the rest of the kismet libraries. I don't think its a problem to define it in a header but no point if they're not being used
+        // params will be a pointer to a custom struct which must be crafted per function
+        // perhaps with a scripting language we could construct something dynamic to fit every case but I'm not enough of a hero to try it in C++ right now
+        // construct your struct with empty uobject references and correct types matching what's seen in the sdk dump
+        // then assign the values individually with api functions
+        void k2_sys(std::wstring function, void* params) {
+            static auto kismet_system_library = API::get()->find_uobject<API::UClass>(L"Class /Script/Engine.KismetSystemLibrary")->get_class_default_object();
+            kismet_system_library->call_function(function, &params);
         }
 
 

@@ -1,0 +1,47 @@
+﻿  Scanning sources for module dependencies...
+  imgui_impl_dx12.cpp
+  imgui_impl_dx11.cpp
+  imgui_tables.cpp
+  d3d12.cpp
+  d3d11.cpp
+  imgui_impl_win32.cpp
+  main.cpp
+  imgui.cpp
+  imgui_draw.cpp
+  imgui_widgets.cpp
+  Compiling...
+  imgui_impl_dx11.cpp
+  d3d11.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  d3d12.cpp
+  imgui.cpp
+  main.cpp
+  imgui_impl_dx12.cpp
+  imgui_draw.cpp
+  imgui_impl_win32.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(4852,22): warning C4244: '=': conversion from 'const wchar_t' to 'char', possible loss of data
+  (compiling source file 'main.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(4852,22):
+      the template instantiation context (the oldest one first) is
+          F:\dev\ImGui_template\uevr\Plugin.hpp(98,18):
+          see reference to function template instantiation '_OutIt std::copy<std::_String_const_iterator<std::_String_val<std::_Simple_types<_Elem>>>,std::_String_iterator<std::_String_val<std::_Simple_types<char>>>>(_InIt,_InIt,_OutIt)' being compiled
+          with
+          [
+              _OutIt=std::_String_iterator<std::_String_val<std::_Simple_types<char>>>,
+              _Elem=wchar_t,
+              _InIt=std::_String_const_iterator<std::_String_val<std::_Simple_types<wchar_t>>>
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(4865,36):
+          see reference to function template instantiation '_OutIt *std::_Copy_unchecked<const wchar_t*,const wchar_t*,char*>(_InIt,_Sent,_OutIt)' being compiled
+          with
+          [
+              _OutIt=char *,
+              _InIt=const wchar_t *,
+              _Sent=const wchar_t *
+          ]
+  
+  LINK : C:\Users\lbatv\AppData\Roaming\UnrealVRMod\UEVR\plugins\UEVR ImGui Template\UEVR ImGui Template.dll not found or not built by the last incremental link; performing full link
+     Creating library C:\Users\lbatv\AppData\Roaming\UnrealVRMod\UEVR\plugins\UEVR ImGui Template\UEVR ImGui Template.lib and object C:\Users\lbatv\AppData\Roaming\UnrealVRMod\UEVR\plugins\UEVR ImGui Template\UEVR ImGui Template.exp
+  UEVR ImGui Template.vcxproj -> C:\Users\lbatv\AppData\Roaming\UnrealVRMod\UEVR\plugins\UEVR ImGui Template\UEVR ImGui Template.dll
+          1 file(s) moved.

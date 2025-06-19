@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imstb_rectpack.obj",
+            "outputs": [
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imstb_rectpack.h_A8C44F4480DB2FC7.ifc.dt.module.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imstb_rectpack.h_A8C44F4480DB2FC7.ifc.dt.d.json",
+                "F:\\dev\\ImGui_template\\(ShortProjectName)\\x64\\Debug\\imstb_rectpack.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "F:\\dev\\ImGui_template\\renderlib\\imgui\\imstb_rectpack.h",
+                    "source-path": "f:\\dev\\imgui_template\\renderlib\\imgui\\imstb_rectpack.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

@@ -36,7 +36,7 @@ SOFTWARE.
 #define UEVR_OUT
 
 #define UEVR_PLUGIN_VERSION_MAJOR 2
-#define UEVR_PLUGIN_VERSION_MINOR 36
+#define UEVR_PLUGIN_VERSION_MINOR 39
 #define UEVR_PLUGIN_VERSION_PATCH 0
 
 #define UEVR_RENDERER_D3D11 0
@@ -187,6 +187,10 @@ typedef bool (*UEVR_OnMessageFn)(UEVR_OnMessageCb);
 typedef bool (*UEVR_OnXInputGetStateFn)(UEVR_OnXInputGetStateCb);
 typedef bool (*UEVR_OnXInputSetStateFn)(UEVR_OnXInputSetStateCb);
 
+/* Lua */
+typedef void (*UEVR_OnCustomEventCb)(const char* evt, const char* evt_data);
+typedef bool (*UEVR_OnCustomEventFn)(UEVR_OnCustomEventCb);
+
 /* Engine */
 typedef bool (*UEVR_Engine_TickFn)(UEVR_Engine_TickCb);
 typedef bool (*UEVR_Slate_DrawWindow_RenderThreadFn)(UEVR_Slate_DrawWindow_RenderThreadCb);
@@ -206,6 +210,7 @@ typedef struct {
     UEVR_OnXInputSetStateFn on_xinput_set_state;
     UEVR_OnPostRenderVRFrameworkDX11Fn on_post_render_vr_framework_dx11;
     UEVR_OnPostRenderVRFrameworkDX12Fn on_post_render_vr_framework_dx12;
+    UEVR_OnCustomEventFn on_custom_event;
 } UEVR_PluginCallbacks;
 
 typedef struct {
@@ -227,6 +232,9 @@ typedef struct {
     const char* (*get_build_time)();
     unsigned int (*get_commits_past_tag)();
     unsigned int (*get_total_commits)();
+
+    /* Intended for C plugins to listen to via on_custom_event */
+    void (*dispatch_custom_event)(const char* event_name, const char* event_data);
 } UEVR_PluginFunctions;
 
 typedef struct {
@@ -250,30 +258,30 @@ typedef struct {
 } UEVR_RendererData;
 
 typedef struct {
-    UEVR_UEngineHandle (*get_uengine)();
+    UEVR_UEngineHandle(*get_uengine)();
     void (*set_cvar_int)(const char* module_name, const char* name, int value);
-    UEVR_UObjectArrayHandle (*get_uobject_array)();
+    UEVR_UObjectArrayHandle(*get_uobject_array)();
 
-    UEVR_UObjectHandle (*get_player_controller)(int index);
-    UEVR_UObjectHandle (*get_local_pawn)(int index);
-    UEVR_UObjectHandle (*spawn_object)(UEVR_UClassHandle klass, UEVR_UObjectHandle outer);
+    UEVR_UObjectHandle(*get_player_controller)(int index);
+    UEVR_UObjectHandle(*get_local_pawn)(int index);
+    UEVR_UObjectHandle(*spawn_object)(UEVR_UClassHandle klass, UEVR_UObjectHandle outer);
 
     /* Handles exec commands, find_console_command does not */
     void (*execute_command)(const wchar_t* command);
     void (*execute_command_ex)(UEVR_UObjectHandle world, const wchar_t* command, void* output_device);
 
-    UEVR_FConsoleManagerHandle (*get_console_manager)();
+    UEVR_FConsoleManagerHandle(*get_console_manager)();
 
-    UEVR_UObjectHandle (*add_component_by_class)(UEVR_UObjectHandle actor, UEVR_UClassHandle klass, bool deferred);
+    UEVR_UObjectHandle(*add_component_by_class)(UEVR_UObjectHandle actor, UEVR_UClassHandle klass, bool deferred);
 } UEVR_SDKFunctions;
 
 typedef struct {
-    UEVR_TArrayHandle (*get_console_objects)(UEVR_FConsoleManagerHandle mgr);
-    UEVR_IConsoleObjectHandle (*find_object)(UEVR_FConsoleManagerHandle mgr, const wchar_t* name);
-    UEVR_IConsoleVariableHandle (*find_variable)(UEVR_FConsoleManagerHandle mgr, const wchar_t* name);
-    UEVR_IConsoleCommandHandle (*find_command)(UEVR_FConsoleManagerHandle mgr, const wchar_t* name);
+    UEVR_TArrayHandle(*get_console_objects)(UEVR_FConsoleManagerHandle mgr);
+    UEVR_IConsoleObjectHandle(*find_object)(UEVR_FConsoleManagerHandle mgr, const wchar_t* name);
+    UEVR_IConsoleVariableHandle(*find_variable)(UEVR_FConsoleManagerHandle mgr, const wchar_t* name);
+    UEVR_IConsoleCommandHandle(*find_command)(UEVR_FConsoleManagerHandle mgr, const wchar_t* name);
 
-    UEVR_IConsoleCommandHandle (*as_command)(UEVR_IConsoleObjectHandle object);
+    UEVR_IConsoleCommandHandle(*as_command)(UEVR_IConsoleObjectHandle object);
 
     void (*variable_set)(UEVR_IConsoleVariableHandle cvar, const wchar_t* value);
     void (*variable_set_ex)(UEVR_IConsoleVariableHandle cvar, const wchar_t* value, unsigned int flags);
@@ -287,7 +295,7 @@ typedef struct {
 DECLARE_UEVR_HANDLE(UEVR_FUObjectItemHandle);
 
 typedef struct {
-    UEVR_UObjectHandle (*find_uobject)(const wchar_t* name);
+    UEVR_UObjectHandle(*find_uobject)(const wchar_t* name);
 
     bool (*is_chunked)();
     bool (*is_inlined)();
@@ -296,18 +304,18 @@ typedef struct {
 
     int (*get_object_count)(UEVR_UObjectArrayHandle array);
     void* (*get_objects_ptr)(UEVR_UObjectArrayHandle array);
-    UEVR_UObjectHandle (*get_object)(UEVR_UObjectArrayHandle array, int index);
-    UEVR_FUObjectItemHandle (*get_item)(UEVR_UObjectArrayHandle array, int index);
+    UEVR_UObjectHandle(*get_object)(UEVR_UObjectArrayHandle array, int index);
+    UEVR_FUObjectItemHandle(*get_item)(UEVR_UObjectArrayHandle array, int index);
 } UEVR_UObjectArrayFunctions;
 
 typedef struct {
-    UEVR_FFieldHandle (*get_next)(UEVR_FFieldHandle field);
-    UEVR_FFieldClassHandle (*get_class)(UEVR_FFieldHandle field);
-    UEVR_FNameHandle (*get_fname)(UEVR_FFieldHandle field);
+    UEVR_FFieldHandle(*get_next)(UEVR_FFieldHandle field);
+    UEVR_FFieldClassHandle(*get_class)(UEVR_FFieldHandle field);
+    UEVR_FNameHandle(*get_fname)(UEVR_FFieldHandle field);
 } UEVR_FFieldFunctions;
 
 typedef struct {
-    UEVR_UFieldHandle (*get_next)(UEVR_UFieldHandle field);
+    UEVR_UFieldHandle(*get_next)(UEVR_UFieldHandle field);
 } UEVR_UFieldFunctions;
 
 typedef struct {
@@ -321,17 +329,17 @@ typedef struct {
 } UEVR_FPropertyFunctions;
 
 typedef struct {
-    UEVR_UStructHandle (*get_super_struct)(UEVR_UStructHandle klass);
-    UEVR_FFieldHandle (*get_child_properties)(UEVR_UStructHandle klass);
-    UEVR_UFunctionHandle (*find_function)(UEVR_UStructHandle klass, const wchar_t* name);
-    UEVR_FPropertyHandle (*find_property)(UEVR_UStructHandle klass, const wchar_t* name);
+    UEVR_UStructHandle(*get_super_struct)(UEVR_UStructHandle klass);
+    UEVR_FFieldHandle(*get_child_properties)(UEVR_UStructHandle klass);
+    UEVR_UFunctionHandle(*find_function)(UEVR_UStructHandle klass, const wchar_t* name);
+    UEVR_FPropertyHandle(*find_property)(UEVR_UStructHandle klass, const wchar_t* name);
     int (*get_properties_size)(UEVR_UStructHandle klass); /* size in bytes */
     int (*get_min_alignment)(UEVR_UStructHandle klass);
-    UEVR_UFieldHandle (*get_children)(UEVR_UStructHandle klass);
+    UEVR_UFieldHandle(*get_children)(UEVR_UStructHandle klass);
 } UEVR_UStructFunctions;
 
 typedef struct {
-    UEVR_UObjectHandle (*get_class_default_object)(UEVR_UClassHandle klass);
+    UEVR_UObjectHandle(*get_class_default_object)(UEVR_UClassHandle klass);
 } UEVR_UClassFunctions;
 
 typedef struct {
@@ -342,8 +350,8 @@ typedef struct {
 } UEVR_UFunctionFunctions;
 
 typedef struct {
-    UEVR_UClassHandle (*get_class)(UEVR_UObjectHandle object);
-    UEVR_UObjectHandle (*get_outer)(UEVR_UObjectHandle object);
+    UEVR_UClassHandle(*get_class)(UEVR_UObjectHandle object);
+    UEVR_UObjectHandle(*get_outer)(UEVR_UObjectHandle object);
 
     /* pointer to the property data, not the UProperty/FProperty */
     void* (*get_property_data)(UEVR_UObjectHandle object, const wchar_t* name);
@@ -352,7 +360,7 @@ typedef struct {
     void (*process_event)(UEVR_UObjectHandle object, UEVR_UFunctionHandle function, void* params);
     void (*call_function)(UEVR_UObjectHandle object, const wchar_t* name, void* params);
 
-    UEVR_FNameHandle (*get_fname)(UEVR_UObjectHandle object);
+    UEVR_FNameHandle(*get_fname)(UEVR_UObjectHandle object);
 
     bool (*get_bool_property)(UEVR_UObjectHandle object, const wchar_t* name);
     void (*set_bool_property)(UEVR_UObjectHandle object, const wchar_t* name, bool value);
@@ -376,11 +384,11 @@ typedef struct {
     int (*get_objects_by_class)(UEVR_UClassHandle klass, UEVR_UObjectHandle* out_objects, unsigned int max_objects, bool allow_default);
     int (*get_objects_by_class_name)(const wchar_t* class_name, UEVR_UObjectHandle* out_objects, unsigned int max_objects, bool allow_default);
 
-    UEVR_UObjectHandle (*get_first_object_by_class)(UEVR_UClassHandle klass, bool allow_default);
-    UEVR_UObjectHandle (*get_first_object_by_class_name)(const wchar_t* class_name, bool allow_default);
+    UEVR_UObjectHandle(*get_first_object_by_class)(UEVR_UClassHandle klass, bool allow_default);
+    UEVR_UObjectHandle(*get_first_object_by_class_name)(const wchar_t* class_name, bool allow_default);
 
-    UEVR_UObjectHookMotionControllerStateHandle (*get_or_add_motion_controller_state)(UEVR_UObjectHandle object);
-    UEVR_UObjectHookMotionControllerStateHandle (*get_motion_controller_state)(UEVR_UObjectHandle object);
+    UEVR_UObjectHookMotionControllerStateHandle(*get_or_add_motion_controller_state)(UEVR_UObjectHandle object);
+    UEVR_UObjectHookMotionControllerStateHandle(*get_motion_controller_state)(UEVR_UObjectHandle object);
 
     UEVR_UObjectHookMotionControllerStateFunctions* mc_state;
 
@@ -392,7 +400,7 @@ typedef struct {
 } UEVR_UObjectHookFunctions;
 
 typedef struct {
-    UEVR_FNameHandle (*get_fname)(UEVR_FFieldClassHandle field_class);
+    UEVR_FNameHandle(*get_fname)(UEVR_FFieldClassHandle field_class);
 } UEVR_FFieldClassFunctions;
 
 typedef struct {
@@ -401,7 +409,7 @@ typedef struct {
 } UEVR_FNameFunctions;
 
 typedef struct {
-    UEVR_FMallocHandle (*get)();
+    UEVR_FMallocHandle(*get)();
 
     void* (*malloc)(UEVR_FMallocHandle instance, unsigned int size, unsigned int alignment);
     void* (*realloc)(UEVR_FMallocHandle instance, void* ptr, unsigned int size, unsigned int alignment);
@@ -412,12 +420,12 @@ DECLARE_UEVR_HANDLE(UEVR_IPooledRenderTargetHandle);
 
 typedef struct {
     void (*activate)();
-    UEVR_IPooledRenderTargetHandle (*get_render_target)(const wchar_t* name);
+    UEVR_IPooledRenderTargetHandle(*get_render_target)(const wchar_t* name);
 } UEVR_FRenderTargetPoolHookFunctions;
 
 typedef struct {
-    UEVR_FRHITexture2DHandle (*get_scene_render_target)();
-    UEVR_FRHITexture2DHandle (*get_ui_render_target)();
+    UEVR_FRHITexture2DHandle(*get_scene_render_target)();
+    UEVR_FRHITexture2DHandle(*get_ui_render_target)();
 } UEVR_FFakeStereoRenderingHookFunctions;
 
 typedef struct {
@@ -427,12 +435,12 @@ typedef struct {
 DECLARE_UEVR_HANDLE(UEVR_StructOpsHandle);
 
 typedef struct {
-    UEVR_StructOpsHandle (*get_struct_ops)(UEVR_UScriptStructHandle script_struct);
+    UEVR_StructOpsHandle(*get_struct_ops)(UEVR_UScriptStructHandle script_struct);
     int (*get_struct_size)(UEVR_UScriptStructHandle script_struct);
 } UEVR_UScriptStructFunctions;
 
 typedef struct {
-    UEVR_FPropertyHandle (*get_inner)(UEVR_FArrayPropertyHandle prop);
+    UEVR_FPropertyHandle(*get_inner)(UEVR_FArrayPropertyHandle prop);
 } UEVR_FArrayPropertyFunctions;
 
 typedef struct {
@@ -447,13 +455,18 @@ typedef struct {
 } UEVR_FBoolPropertyFunctions;
 
 typedef struct {
-    UEVR_UScriptStructHandle (*get_struct)(UEVR_FStructPropertyHandle prop);
+    UEVR_UScriptStructHandle(*get_struct)(UEVR_FStructPropertyHandle prop);
 } UEVR_FStructPropertyFunctions;
 
 typedef struct {
-    UEVR_FNumericPropertyHandle (*get_underlying_prop)(UEVR_FEnumPropertyHandle prop);
-    UEVR_UEnumHandle (*get_enum)(UEVR_FEnumPropertyHandle prop);
+    UEVR_FNumericPropertyHandle(*get_underlying_prop)(UEVR_FEnumPropertyHandle prop);
+    UEVR_UEnumHandle(*get_enum)(UEVR_FEnumPropertyHandle prop);
 } UEVR_FEnumPropertyFunctions;
+
+typedef struct {
+    void (*exec)(UEVR_UGameViewportClientHandle vp, const wchar_t* command);
+    void (*exec_ex)(UEVR_UGameViewportClientHandle vp, UEVR_UObjectHandle world, const wchar_t* command, void* output_device);
+} UEVR_UGameViewportClientFunctions;
 
 typedef struct {
     const UEVR_SDKFunctions* functions;
@@ -479,6 +492,7 @@ typedef struct {
     const UEVR_FStructPropertyFunctions* fstructproperty;
     const UEVR_FEnumPropertyFunctions* fenumproperty;
     const UEVR_UFieldFunctions* ufield;
+    const UEVR_UGameViewportClientFunctions* game_viewport_client;
 } UEVR_SDKData;
 
 DECLARE_UEVR_HANDLE(UEVR_IVRSystem);
@@ -503,34 +517,34 @@ DECLARE_UEVR_HANDLE(UEVR_IVRNotifications);
 DECLARE_UEVR_HANDLE(UEVR_IVRDebug);
 
 typedef struct {
-    UEVR_IVRSystem (*get_vr_system)();
-    UEVR_IVRChaperone (*get_vr_chaperone)();
-    UEVR_IVRChaperoneSetup (*get_vr_chaperone_setup)();
-    UEVR_IVRCompositor (*get_vr_compositor)();
-    UEVR_IVROverlay (*get_vr_overlay)();
-    UEVR_IVROverlayView (*get_vr_overlay_view)();
-    UEVR_IVRHeadsetView (*get_vr_headset_view)();
-    UEVR_IVRScreenshots (*get_vr_screenshots)();
-    UEVR_IVRRenderModels (*get_vr_render_models)();
-    UEVR_IVRApplications (*get_vr_applications)();
-    UEVR_IVRSettings (*get_vr_settings)();
-    UEVR_IVRResources (*get_vr_resources)();
-    UEVR_IVRExtendedDisplay (*get_vr_extended_display)();
-    UEVR_IVRTrackedCamera (*get_vr_tracked_camera)();
-    UEVR_IVRDriverManager (*get_vr_driver_manager)();
-    UEVR_IVRInput (*get_vr_input)();
-    UEVR_IVRIOBuffer (*get_vr_io_buffer)();
-    UEVR_IVRSpatialAnchors (*get_vr_spatial_anchors)();
-    UEVR_IVRNotifications (*get_vr_notifications)();
-    UEVR_IVRDebug (*get_vr_debug)();
+    UEVR_IVRSystem(*get_vr_system)();
+    UEVR_IVRChaperone(*get_vr_chaperone)();
+    UEVR_IVRChaperoneSetup(*get_vr_chaperone_setup)();
+    UEVR_IVRCompositor(*get_vr_compositor)();
+    UEVR_IVROverlay(*get_vr_overlay)();
+    UEVR_IVROverlayView(*get_vr_overlay_view)();
+    UEVR_IVRHeadsetView(*get_vr_headset_view)();
+    UEVR_IVRScreenshots(*get_vr_screenshots)();
+    UEVR_IVRRenderModels(*get_vr_render_models)();
+    UEVR_IVRApplications(*get_vr_applications)();
+    UEVR_IVRSettings(*get_vr_settings)();
+    UEVR_IVRResources(*get_vr_resources)();
+    UEVR_IVRExtendedDisplay(*get_vr_extended_display)();
+    UEVR_IVRTrackedCamera(*get_vr_tracked_camera)();
+    UEVR_IVRDriverManager(*get_vr_driver_manager)();
+    UEVR_IVRInput(*get_vr_input)();
+    UEVR_IVRIOBuffer(*get_vr_io_buffer)();
+    UEVR_IVRSpatialAnchors(*get_vr_spatial_anchors)();
+    UEVR_IVRNotifications(*get_vr_notifications)();
+    UEVR_IVRDebug(*get_vr_debug)();
 } UEVR_OpenVRData;
 
 typedef struct {
-    UEVR_XrInstance (*get_xr_instance)();
-    UEVR_XrSession (*get_xr_session)();
+    UEVR_XrInstance(*get_xr_instance)();
+    UEVR_XrSession(*get_xr_session)();
 
-    UEVR_XrSpace (*get_stage_space)(); /* XrSpace */
-    UEVR_XrSpace (*get_view_space)(); /* XrSpace */
+    UEVR_XrSpace(*get_stage_space)(); /* XrSpace */
+    UEVR_XrSpace(*get_view_space)(); /* XrSpace */
 } UEVR_OpenXRData;
 
 DECLARE_UEVR_HANDLE(UEVR_ActionHandle);
@@ -548,14 +562,14 @@ typedef struct {
     void (*set_standing_origin)(const UEVR_Vector3f* origin);
     void (*set_rotation_offset)(const UEVR_Quaternionf* rotation);
 
-    UEVR_TrackedDeviceIndex (*get_hmd_index)();
-    UEVR_TrackedDeviceIndex (*get_left_controller_index)();
-    UEVR_TrackedDeviceIndex (*get_right_controller_index)();
+    UEVR_TrackedDeviceIndex(*get_hmd_index)();
+    UEVR_TrackedDeviceIndex(*get_left_controller_index)();
+    UEVR_TrackedDeviceIndex(*get_right_controller_index)();
 
     /* OpenVR/OpenXR space. */
     void (*get_pose)(UEVR_TrackedDeviceIndex index, UEVR_Vector3f* out_position, UEVR_Quaternionf* out_rotation);
-
     void (*get_transform)(UEVR_TrackedDeviceIndex index, UEVR_Matrix4x4f* out_transform);
+
     /* For getting grip or aim poses for the controllers */
     void (*get_grip_pose)(UEVR_TrackedDeviceIndex index, UEVR_Vector3f* out_position, UEVR_Quaternionf* out_rotation);
     void (*get_aim_pose)(UEVR_TrackedDeviceIndex index, UEVR_Vector3f* out_position, UEVR_Quaternionf* out_rotation);
@@ -567,10 +581,10 @@ typedef struct {
     /* Converted to UE projection matrix */
     void (*get_ue_projection_matrix)(UEVR_Eye eye, UEVR_Matrix4x4f* out_projection);
 
-    UEVR_InputSourceHandle (*get_left_joystick_source)();
-    UEVR_InputSourceHandle (*get_right_joystick_source)();
-    
-    UEVR_ActionHandle (*get_action_handle)(const char* action_path);
+    UEVR_InputSourceHandle(*get_left_joystick_source)();
+    UEVR_InputSourceHandle(*get_right_joystick_source)();
+
+    UEVR_ActionHandle(*get_action_handle)(const char* action_path);
 
     bool (*is_action_active)(UEVR_ActionHandle action, UEVR_InputSourceHandle source);
     bool (*is_action_active_any_joystick)(UEVR_ActionHandle action);
@@ -579,7 +593,7 @@ typedef struct {
     /* if any controller action is active or has been active within certain previous timeframe */
     bool (*is_using_controllers)();
     bool (*is_decoupled_pitch_enabled)();
-    
+
     unsigned int (*get_movement_orientation)();
     unsigned int (*get_lowest_xinput_index)();
 
@@ -606,6 +620,13 @@ typedef struct {
     void (*reload_config)();
 } UEVR_VRData;
 
+struct lua_State;
+
+typedef struct {
+    lua_State* (*get_lua_state)();
+    void (*add_additional_bindings)(lua_State* L); /* for external Lua environments. adds json, fs, imgui, etc*/
+} UEVR_LuaData;
+
 typedef struct {
     void* uevr_module;
     const UEVR_PluginVersion* version;
@@ -619,6 +640,8 @@ typedef struct {
 
     /* Engine/Game specific functions and data */
     const UEVR_SDKData* sdk;
+
+    const UEVR_LuaData* lua;
 } UEVR_PluginInitializeParam;
 
 typedef bool (*UEVR_PluginInitializeFn)(const UEVR_PluginInitializeParam*);

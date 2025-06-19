@@ -16,7 +16,7 @@
 #include <mutex>
 
 #include "../imgui/imgui.h" 
-#include "imgui_impl_win32.h"
+#include "./imgui_impl_win32.h"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif

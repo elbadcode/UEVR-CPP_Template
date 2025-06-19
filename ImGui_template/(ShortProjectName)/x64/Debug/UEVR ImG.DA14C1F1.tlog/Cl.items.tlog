@@ -1,0 +1,10 @@
+F:\dev\ImGui_template\main.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\main.obj
+F:\dev\ImGui_template\renderlib\imgui\imgui.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\imgui.obj
+F:\dev\ImGui_template\renderlib\imgui\imgui_draw.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\imgui_draw.obj
+F:\dev\ImGui_template\renderlib\imgui\imgui_tables.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\imgui_tables.obj
+F:\dev\ImGui_template\renderlib\imgui\imgui_widgets.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\imgui_widgets.obj
+F:\dev\ImGui_template\renderlib\rendering\d3d11.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\d3d11.obj
+F:\dev\ImGui_template\renderlib\rendering\d3d12.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\d3d12.obj
+F:\dev\ImGui_template\renderlib\uevr_imgui\imgui_impl_dx11.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\imgui_impl_dx11.obj
+F:\dev\ImGui_template\renderlib\uevr_imgui\imgui_impl_dx12.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\imgui_impl_dx12.obj
+F:\dev\ImGui_template\renderlib\uevr_imgui\imgui_impl_win32.cpp;F:\dev\ImGui_template\(ShortProjectName)\x64\Debug\imgui_impl_win32.obj
